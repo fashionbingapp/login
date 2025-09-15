@@ -79,12 +79,13 @@
     <span class="toggle-link" onclick="toggleForm()">Don’t have an account? Sign up</span>
   </div>
 
-  <!-- Firebase SDK -->
-  <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-app.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-auth.js"></script>
+  <!-- Firebase SDK (Modular v9) -->
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/9.6.1/firebase-app.js";
+    import { getAuth, signInWithEmailAndPassword, createUserWithEmailAndPassword, GoogleAuthProvider, signInWithPopup } 
+      from "https://www.gstatic.com/firebasejs/9.6.1/firebase-auth.js";
 
-  <script>
-    // 🔹 Your Firebase config
+    // ✅ Your Firebase config
     const firebaseConfig = {
       apiKey: "AIzaSyAt6f0_yDSY_w7mBL55PWJkY4u__okpDUM",
       authDomain: "fashionbing-8cbeb.firebaseapp.com",
@@ -95,16 +96,19 @@
       measurementId: "G-DBPFV3G0GV"
     };
 
-    // Init Firebase
-    const app = firebase.initializeApp(firebaseConfig);
-    const auth = firebase.auth();
+    // Initialize Firebase
+    const app = initializeApp(firebaseConfig);
+    const auth = getAuth(app);
+    const provider = new GoogleAuthProvider();
 
+    // Elements
     const formTitle = document.getElementById("form-title");
     const authForm = document.getElementById("auth-form");
     const toggleLink = document.querySelector(".toggle-link");
     const googleBtn = document.getElementById("googleSignIn");
     let isLogin = true;
 
+    // Toggle Login/Signup
     function toggleForm() {
       isLogin = !isLogin;
       if (isLogin) {
@@ -126,19 +130,20 @@
         toggleLink.textContent = "Already have an account? Login";
       }
     }
+    window.toggleForm = toggleForm; // expose for onclick
 
-    // Email/Password Auth
+    // Handle form submit
     document.addEventListener("submit", async (e) => {
       e.preventDefault();
       const email = document.getElementById("email").value;
       const password = document.getElementById("password").value;
-      
+
       try {
         if (isLogin) {
-          await auth.signInWithEmailAndPassword(email, password);
+          await signInWithEmailAndPassword(auth, email, password);
           alert("✅ Logged in!");
         } else {
-          await auth.createUserWithEmailAndPassword(email, password);
+          await createUserWithEmailAndPassword(auth, email, password);
           alert("🎉 Account created!");
         }
       } catch (err) {
@@ -148,9 +153,8 @@
 
     // Google Sign In
     googleBtn.addEventListener("click", async () => {
-      const provider = new firebase.auth.GoogleAuthProvider();
       try {
-        await auth.signInWithPopup(provider);
+        await signInWithPopup(auth, provider);
         alert("✅ Signed in with Google!");
       } catch (err) {
         alert("❌ " + err.message);
@@ -158,4 +162,4 @@
     });
   </script>
 </body>
-</html>
+  </html>
